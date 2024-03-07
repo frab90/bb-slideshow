@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Slideshow</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      const TIME = 300; // 30 seconds
+      document.addEventListener("DOMContentLoaded", function () {
+        const imageFolder = "images/";
+        const imageListFile = "images/imageList.json";
+
+        function fetchImageList() {
+          return fetch(imageListFile)
+            .then((response) => response.json())
+            .then((data) => data.files);
+        }
+
+        let currentIndex = 0;
+
+        function changeImage(imageList) {
+          const imageUrl = imageFolder + imageList[currentIndex];
+          const img = new Image();
+          img.src = imageUrl;
+          img.onload = function () {
+            // Set the loaded image as the content of the body
+            document.body.innerHTML = "";
+            document.body.appendChild(img);
+
+            currentIndex = (currentIndex + 1) % imageList.length;
+          };
+        }
+
+        // Fetch image list and start slideshow
+        fetchImageList()
+          .then((imageList) => {
+            if (imageList.length > 0) {
+              // Initial image load
+              changeImage(imageList);
+
+              // Change image every 30 seconds
+              setInterval(() => changeImage(imageList), TIME);
+            } else {
+              console.error("No images found in the 'images' folder.");
+            }
+          })
+          .catch((error) => console.error("Error fetching image list:", error));
+      });
+    </script>
+  </body>
+</html>
